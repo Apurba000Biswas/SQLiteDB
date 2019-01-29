@@ -15,6 +15,10 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void importDB(){
-        // read example.sql into database named "babynames"
+        // read babynames.sql into database named "babynames"
         SQLiteDatabase db = this.openOrCreateDatabase("babynames.db" , this.MODE_PRIVATE, null);
         Scanner scan = new Scanner(getResources()
                 .openRawResource(R.raw.babynames));
@@ -48,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
         String gender = (sw.isChecked())? "M": "F";
         SQLiteDatabase db = this.openOrCreateDatabase("babynames.db" , this.MODE_PRIVATE, null);
 
+        GraphView graph = findViewById(R.id.gv_graph);
+
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+
+
         String sqlQuery = "SELECT year, rank FROM ranks WHERE name = "
                 + "'" + inputName +"'" + " AND " + "sex = " + "'" + gender + "'";
 
@@ -57,17 +66,15 @@ public class MainActivity extends AppCompatActivity {
                 int year = cursor.getInt(cursor.getColumnIndex("year"));
                 int rank = cursor.getInt(cursor.getColumnIndex("rank"));
 
-                drawGraph(year, rank);
-                //Log.v("MainActivity", "Founded Name Year = " + year + " And Rank = " + rank);
+                DataPoint point = new DataPoint(year, rank);
+                series.appendData(point, false, 100);
 
             } while (cursor.moveToNext());
             cursor.close();
         }else{
             Log.v("MainActivity", "Cursor Empty----------");
         }
+        graph.addSeries(series);
     }
 
-    private void drawGraph(int year, int rank){
-        
-    }
 }
